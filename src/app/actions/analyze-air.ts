@@ -130,7 +130,10 @@ Generate a comprehensive civic intelligence analysis using the 'submit_civic_ana
                   "Hazardous"
                 ]
               },
-              average_pm25: { type: "string" },
+              average_pm25: {
+                type: "string",
+                description: "Estimated average PM2.5 numerical value with unit ONLY, e.g. '118 µg/m³'. Do not write long sentences here."
+              },
               dominant_pollutant: { type: "string" },
               hotspots: {
                 type: "array",
