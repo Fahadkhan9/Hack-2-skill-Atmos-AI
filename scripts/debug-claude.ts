@@ -11,7 +11,8 @@ async function debug() {
   });
   console.log("Stop reason:", res.stop_reason);
   console.log("Usage:", res.usage);
-  console.log("Content:", res.content[0].text);
+  const textBlock = res.content.find(b => b.type === "text");
+  console.log("Content:", textBlock && "text" in textBlock ? textBlock.text : "");
 }
 
 debug().catch(console.error);
