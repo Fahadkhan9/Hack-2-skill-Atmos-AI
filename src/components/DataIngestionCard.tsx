@@ -27,6 +27,9 @@ export function DataIngestionCard({
       if (content) {
         setInputData(content);
       }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
     reader.readAsText(file);
   };
