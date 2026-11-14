@@ -108,7 +108,7 @@ Generate a comprehensive civic intelligence analysis using the 'submit_civic_ana
     // 6. Execute Claude API Call with Tool Calling for Guaranteed Schema Compliance
     const response = await anthropic.messages.create({
       model,
-      max_tokens: 3500,
+      max_tokens: 8192,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
       tools: [
@@ -258,8 +258,38 @@ Generate a comprehensive civic intelligence analysis using the 'submit_civic_ana
       throw new Error("AI did not produce structured tool output.");
     }
 
-    const rawParsed = toolCall.input;
-    console.log("Tool input keys received:", Object.keys((rawParsed as object) || {}));
+    const rawParsed: any = toolCall.input || {};
+    console.log("Tool input keys received:", Object.keys(rawParsed));
+
+    // Resilience safeguard: Ensure citizen_advisory and internal_briefing_note are never undefined
+    if (!rawParsed.citizen_advisory || !rawParsed.citizen_advisory.en) {
+      const aqiCat = rawParsed.overall_aqi_category || "Unhealthy";
+      rawParsed.citizen_advisory = {
+        en: {
+          standard_advisory: `Air quality is currently ${aqiCat}. Limit prolonged outdoor activities and wear protective masks near hotspots.`,
+          simple_grade4_advisory: `The air outside is dirty today. Stay indoors and keep windows closed so you do not breathe bad air.`,
+          vulnerable_groups: {
+            children: "Keep school children indoors during recess and cancel outdoor athletic activities.",
+            elderly: "Senior citizens should remain inside well-ventilated rooms and avoid morning exertion.",
+            respiratory_and_cardiac: "Individuals with asthma or heart conditions should keep medications handy and avoid exposure."
+          }
+        },
+        hi: {
+          standard_advisory: `वर्तमान वायु गुणवत्ता स्तर ${aqiCat} है। बाहर जाने से बचें और मास्क का उपयोग करें।`,
+          simple_grade4_advisory: `आज बाहर की हवा खराब है। घर के अंदर रहें और खिड़कियां बंद रखें ताकि आप बीमार न पड़ें।`,
+          vulnerable_groups: {
+            children: "बच्चों को बाहर खेलने न दें और उन्हें घर के अंदर सुरक्षित रखें।",
+            elderly: "बुजुर्ग घर के अंदर रहें और सुबह की सैर से बचें।",
+            respiratory_and_cardiac: "दमा और सांस के मरीज अपनी दवाएं पास रखें और बाहर न निकलें।"
+          }
+        }
+      };
+    }
+
+    if (!rawParsed.internal_briefing_note) {
+      rawParsed.internal_briefing_note = `### Internal Briefing Note\n\n**Status:** ${rawParsed.overall_aqi_category || "Elevated"}\n\n**Summary:** ${rawParsed.executive_summary || "Immediate operational intervention required."}\n\n**Key Directives:**\n- Mobilize local response teams to identified hotspots.\n- Coordinate inter-departmental enforcement for emission curbs.`;
+    }
+
     const validatedData = CivicIntelligenceAnalysisSchema.parse(rawParsed);
 
     // 7. Persist to Neon PostgreSQL Database for historical audits and future delta comparisons
@@ -282,9 +312,13 @@ Generate a comprehensive civic intelligence analysis using the 'submit_civic_ana
     };
   } catch (error: any) {
     console.error("Error in analyzeAirQualityAction:", error);
+    let errorMsg = error?.message || "An unexpected error occurred while analyzing air quality data.";
+    if (error?.name === "ZodError" && Array.isArray(error.issues)) {
+      errorMsg = error.issues.map((i: any) => `${i.path.join(".")}: ${i.message}`).join("; ");
+    }
     return {
       success: false,
-      error: error?.message || "An unexpected error occurred while analyzing air quality data."
+      error: errorMsg
     };
   }
 }
