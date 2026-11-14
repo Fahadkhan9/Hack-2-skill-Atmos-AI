@@ -13,7 +13,7 @@ import { DualOutputStudio } from "@/components/DualOutputStudio";
 import { PersonaType, CivicIntelligenceAnalysis } from "@/types/air-quality";
 import { SAMPLE_MORNING_MESSY } from "@/lib/data/sample-datasets";
 import { analyzeAirQualityAction } from "@/app/actions/analyze-air";
-import { AlertCircle, Sparkles, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Sparkles, CheckCircle2, X, RefreshCw, Database } from "lucide-react";
 
 export default function Home() {
   const [selectedPersona, setSelectedPersona] = useState<PersonaType>("ward_officer");
@@ -22,6 +22,14 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<CivicIntelligenceAnalysis | null>(null);
   const [stationCount, setStationCount] = useState<number | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Clear lingering error messages when the user changes data
+  const handleDataChange = (newData: string) => {
+    setInputData(newData);
+    if (errorMessage) {
+      setErrorMessage(null);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!inputData.trim()) return;
@@ -78,29 +86,60 @@ export default function Home() {
           <h2 id="data-ingestion-heading" className="sr-only">Data Ingestion</h2>
           <DataIngestionCard
             inputData={inputData}
-            setInputData={setInputData}
+            setInputData={handleDataChange}
             onAnalyze={handleAnalyze}
             isLoading={isLoading}
           />
         </section>
 
-        {/* Error Alert */}
-        {errorMessage && (
+        {/* Loading Progress State */}
+        {isLoading && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="p-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 dark:border-emerald-900/60 dark:bg-emerald-950/30 text-center space-y-3 animate-pulse shadow-sm"
+          >
+            <div className="inline-flex p-3 rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-500/20">
+              <RefreshCw className="w-6 h-6 animate-spin" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+                Claude 3.5 Sonnet is Synthesizing Civic Interventions
+              </h3>
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 max-w-lg mx-auto">
+                Normalizing tabular pollutants • Auditing sensor anomalies • Calculating temporal deltas against Neon PostgreSQL history • Drafting multilingual advisories
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Alert (with Dismiss Button) */}
+        {errorMessage && !isLoading && (
           <div
             role="alert"
-            className="p-4 rounded-xl border border-red-300 bg-red-50 text-red-900 dark:bg-red-950/40 dark:border-red-800 dark:text-red-200 text-xs sm:text-sm flex items-start gap-3 shadow-sm"
+            className="p-4 rounded-xl border border-red-300 bg-red-50 text-red-900 dark:bg-red-950/40 dark:border-red-800 dark:text-red-200 text-xs sm:text-sm flex items-start justify-between gap-3 shadow-sm"
           >
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold">Analysis Failed: </span>
-              {errorMessage}
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold">Analysis Notice: </span>
+                <span>{errorMessage}</span>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setErrorMessage(null)}
+              className="p-1 rounded-md text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-white"
+              title="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
         {/* Dynamic AI Results Section (Accessible live region) */}
         <div aria-live="polite" className="space-y-6">
-          {analysisResult && (
+          {analysisResult && !isLoading && (
             <>
               {/* Overall Status */}
               <AqiStatusCard
@@ -141,7 +180,7 @@ export default function Home() {
       {/* Accessible Footer */}
       <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 py-6 mt-12 text-center text-xs text-zinc-500 dark:text-zinc-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>Atmos AI — Built for Hackathon Excellence</span>
+          <span>Atmos AI — Civic Air Quality Intelligence</span>
           <div className="flex items-center gap-4">
             <span>Powered by Claude 3.5 Sonnet</span>
             <span>•</span>
