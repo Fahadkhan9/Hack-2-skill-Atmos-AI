@@ -64,7 +64,8 @@ export function parseTabularAirData(rawInput: string): {
     const cleanRow: Record<string, any> = { _rowNum: rowNum };
 
     for (const [col, rawVal] of Object.entries(row)) {
-      if (rawVal === undefined || rawVal === null || rawVal === "" || rawVal === "-" || rawVal === "N/A" || rawVal === "null") {
+      const strVal = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : "";
+      if (!strVal || strVal === "-" || strVal.toLowerCase() === "n/a" || strVal.toLowerCase() === "null") {
         missingValuesCount++;
         cleanRow[col] = null;
         if (["pm25", "pm10", "station"].includes(col)) {
@@ -72,7 +73,6 @@ export function parseTabularAirData(rawInput: string): {
         }
       } else {
         // Strip unit strings if embedded (e.g. "210 ug/m3", "185 µg/m³" -> 210)
-        const strVal = String(rawVal).trim();
         const numMatch = strVal.match(/^([-+]?[0-9]*\.?[0-9]+)/);
         const numVal = numMatch ? parseFloat(numMatch[1]) : NaN;
 

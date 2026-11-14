@@ -10,7 +10,8 @@ import {
   Baby,
   HeartPulse,
   UserCheck,
-  BookOpen
+  BookOpen,
+  Printer
 } from "lucide-react";
 
 interface DualOutputStudioProps {
@@ -94,23 +95,34 @@ HEALTH SAFEGUARDS FOR VULNERABLE RESIDENTS:
             <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
               Format: Operational Directive | Target Audience: Ward Officers & Enforcement Teams
             </span>
-            <button
-              type="button"
-              onClick={handleCopyInternal}
-              className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors"
-            >
-              {copiedInternal ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Copied Note!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Briefing Note</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors"
+                title="Print or save as PDF"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print / PDF Directive</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyInternal}
+                className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors"
+              >
+                {copiedInternal ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Copied Note!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Briefing Note</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="p-5 rounded-xl border border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-950/60 font-sans text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 prose prose-sm dark:prose-invert max-w-none leading-relaxed">

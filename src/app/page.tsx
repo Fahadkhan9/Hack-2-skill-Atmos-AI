@@ -10,6 +10,8 @@ import { TemporalDeltaCard } from "@/components/TemporalDeltaCard";
 import { HotspotsTable } from "@/components/HotspotsTable";
 import { PrioritizedActionsCard } from "@/components/PrioritizedActionsCard";
 import { DualOutputStudio } from "@/components/DualOutputStudio";
+import { CivicWardMap } from "@/components/CivicWardMap";
+import { TemporalDeltaChart } from "@/components/TemporalDeltaChart";
 import { PersonaType, CivicIntelligenceAnalysis } from "@/types/air-quality";
 import { SAMPLE_MORNING_MESSY } from "@/lib/data/sample-datasets";
 import { analyzeAirQualityAction } from "@/app/actions/analyze-air";
@@ -152,9 +154,20 @@ export default function Home() {
                 flags={analysisResult.data_reliability_flags}
               />
 
+              {/* Interactive Civic Ward Hotspot Map */}
+              <CivicWardMap
+                hotspots={analysisResult.hotspots}
+              />
+
               {/* Temporal Delta ("What Changed?") */}
               <TemporalDeltaCard
                 delta={analysisResult.temporal_delta}
+              />
+
+              {/* Temporal Delta Comparison Chart */}
+              <TemporalDeltaChart
+                delta={analysisResult.temporal_delta}
+                hotspots={analysisResult.hotspots}
               />
 
               {/* Hotspots & Traceability */}
