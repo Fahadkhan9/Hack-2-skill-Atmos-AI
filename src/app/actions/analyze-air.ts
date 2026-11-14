@@ -61,18 +61,18 @@ TARGET PERSONA:
 - Practical Interventions they can actually take: ${personaInfo.exampleInterventions.join("; ")}
 
 CRITICAL RULES:
-1. CONCISENESS & SPEED: Keep all fields crisp, punchy, and actionable. Do not be overly verbose.
+1. HIGH EFFICIENCY & CONCISENESS: Output concise, direct, high-signal information. Do not write filler words.
 2. TRACEABILITY: Every single hotspot, peak, and action justification MUST cite exact source evidence from the data (e.g. "[Station 3, Row #14 at 08:30 hrs - PM2.5: 284 µg/m³]"). Do not invent numbers.
-3. HOTSPOTS: Return the top 3 to 5 most significant hotspots.
-4. DATA GAPS & RELIABILITY: Explicitly call out missing sensors, unit mismatches, stuck/flatline values, or irregular timestamps.
-5. TEMPORAL DELTA ("WHAT CHANGED?"): Compare the current data with the previous brief (if provided below). Explicitly highlight worsening zones, improving areas, and persistent hotspots.
-6. PERSONA-SPECIFIC ACTIONS: Provide exactly 3 to 4 prioritized, highly specific actions tailored to what this persona can execute.
+3. HOTSPOTS: Return the top 3 most critical hotspots only.
+4. DATA GAPS & RELIABILITY: Flag up to 3 most important missing sensors, unit mismatches, or glitch readings with row citations.
+5. TEMPORAL DELTA ("WHAT CHANGED?"): Compare the current data with the previous brief (if provided below). Summarize in 2-3 sentences what changed, improving zones, and persistent hazards.
+6. PERSONA-SPECIFIC ACTIONS: Provide exactly 3 prioritized, highly practical actions tailored to what this persona can execute.
 7. DUAL COMMUNICATIONS:
-   - 'internal_briefing_note': Crisp, formal Markdown note (under 200 words) with SLAs, target times, and clear directives.
+   - 'internal_briefing_note': Crisp Markdown operational note (120-150 words) with SLAs and responsible teams.
    - 'citizen_advisory' in BOTH English (en) and Hindi (hi):
-     * Standard advisory for the general public (under 60 words).
-     * Simple 4th-grade level advisory with short, easy sentences (under 50 words).
-     * Dedicated actionable advice for vulnerable groups: Children, Elderly, and People with Respiratory/Cardiac conditions (1-2 sentences each).`;
+     * Standard advisory: 2 clear sentences.
+     * Simple 4th-grade level advisory: 2 short sentences with basic words.
+     * Vulnerable groups (Children, Elderly, Respiratory/Cardiac): Exactly 1 direct actionable sentence each.`;
 
     const previousBriefContext = previousBrief
       ? `PREVIOUS STORED BRIEF (for Temporal Comparison):
@@ -108,7 +108,7 @@ Generate a comprehensive civic intelligence analysis using the 'submit_civic_ana
     // 6. Execute Claude API Call with Tool Calling for Guaranteed Schema Compliance
     const response = await anthropic.messages.create({
       model,
-      max_tokens: 8192,
+      max_tokens: 3500,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
       tools: [

@@ -16,7 +16,7 @@ Ward 15 - Highway, 09:00 AM, -999, 450, 95, glitch reading
 `;
 
 console.log("Testing tabular parser...");
-const { summary, anomaliesDetected } = parseTabularAirData(MESSY_SAMPLE);
+const { summary } = parseTabularAirData(MESSY_SAMPLE);
 console.log("Parsed rows:", summary.rowCount);
 console.log("Stations detected:", summary.stationsDetected);
 console.log("Pollutants detected:", summary.detectedPollutants);
